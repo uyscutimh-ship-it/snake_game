@@ -67,7 +67,7 @@
   function showLobby(){setup.classList.add('hidden');lobby.classList.remove('hidden');roomCodeEl.textContent=room;gmTools.classList.toggle('hidden',!isHost);renderPlayers();}
   function renderPlayers(){if(!game)return;playersEl.replaceChildren();game.players.forEach(p=>{const li=document.createElement('li');li.textContent=(p.id===game.hostId?'★ ':'')+p.name+' · '+p.score+(p.alive?'':' · out');li.style.borderColor=p.color;playersEl.append(li);});if(isHost)statusEl.textContent=game.running?'Round in progress':game.players.length+' / 8 players · share the code to invite friends';}
   function send(type,fields){if(!channel||!online)return;channel.send({type:'broadcast',event:'game',payload:Object.assign({type,from:myId},fields||{})});}
-  function installChannel(code){if(!supabaseClient)throw Error('Add your Supabase project URL and publishable key to config.js first.');room=code;channel=supabaseClient.channel('snake-room-'+code,{config:{broadcast:{self:false}}});
+  function installChannel(code){if(!supabaseClient)throw Error('Add your Supabase project URL and publishable key to config.js first.');room=code;channel=supabaseClient.channel('snake-room-'+code,{config:{private:false,broadcast:{self:false}}});
     channel.on('broadcast',{event:'game'},({payload})=>onMessage(payload||{}));
     return new Promise((resolve,reject)=>{let settled=false;channel.subscribe(s=>{if(s==='SUBSCRIBED'&&!settled){settled=true;online=true;resolve();}else if((s==='CHANNEL_ERROR'||s==='TIMED_OUT'||s==='CLOSED')&&!settled){settled=true;reject(Error('Could not connect to the lobby. Check the project URL/key and Realtime setting.'));}});});
   }
